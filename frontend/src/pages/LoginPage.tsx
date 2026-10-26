@@ -31,7 +31,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToWebsite }) => {
     try {
       await login(username, password);
     } catch (err: any) {
-      setError(err.message || 'Authentication failed. Please verify credentials.');
+      let message = err.message || 'Authentication failed. Please verify credentials.';
+      if (message === 'Not Found' || message.includes('404')) {
+        message = 'Authentication service endpoint not reachable. Please ensure the backend server is running on http://127.0.0.1:8000.';
+      } else if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
+        message = 'Cannot connect to backend server. Please ensure the backend is running on http://127.0.0.1:8000.';
+      }
+      setError(message);
     } finally {
       setLoading(false);
     }

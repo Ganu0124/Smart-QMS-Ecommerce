@@ -1,4 +1,13 @@
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000') + '/api';
+function resolveApiBase(): string {
+  const envUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
+  if (envUrl) {
+    const stripped = envUrl.replace(/\/+$/, '');
+    return stripped.endsWith('/api') ? stripped : `${stripped}/api`;
+  }
+  return 'http://127.0.0.1:8000/api';
+}
+
+const API_BASE = resolveApiBase();
 
 export function getAuthToken(): string | null {
   return localStorage.getItem('smartqms_token');
