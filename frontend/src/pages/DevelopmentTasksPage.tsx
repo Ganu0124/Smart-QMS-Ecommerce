@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
 import { DevTask, Project, Requirement, User } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -8,20 +8,17 @@ import {
   GitPullRequest,
   Plus,
   GitBranch,
-  Calendar,
   User as UserIcon,
   CheckCircle2,
-  Clock,
   ExternalLink,
-  AlertTriangle,
   Play,
   Send,
-  CheckSquare,
   Search,
-  Filter,
   AlertCircle,
   FileText,
 } from 'lucide-react';
+
+const getDefaultDueDate = () => new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
 export const DevelopmentTasksPage: React.FC = () => {
   const { user } = useAuth();
@@ -46,18 +43,18 @@ export const DevelopmentTasksPage: React.FC = () => {
   const [actionError, setActionError] = useState<string | null>(null);
 
   // New Task Form
-  const [taskForm, setTaskForm] = useState({
+  const [taskForm, setTaskForm] = useState(() => ({
     title: '',
     description: '',
     requirement_id: undefined as number | undefined,
     developer_id: user?.id || 1,
     priority: 'high',
-    due_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    due_date: getDefaultDueDate(),
     branch: '',
     pr_url: '',
-  });
+  }));
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setActionError(null);
     try {
@@ -88,11 +85,11 @@ export const DevelopmentTasksPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedProjectId, statusFilter, searchQuery, user?.id]);
 
   useEffect(() => {
     loadData();
-  }, [selectedProjectId, statusFilter, priorityFilter, searchQuery]);
+  }, [loadData]);
 
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -230,11 +227,24 @@ export const DevelopmentTasksPage: React.FC = () => {
           <option value="completed">Completed</option>
         </select>
 
-        {(searchQuery || statusFilter) && (
+        <select
+          value={priorityFilter}
+          onChange={(e) => setPriorityFilter(e.target.value)}
+          className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md px-3 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
+        >
+          <option value="">All Priorities</option>
+          <option value="critical">Critical</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+
+        {(searchQuery || statusFilter || priorityFilter) && (
           <button
             onClick={() => {
               setSearchQuery('');
               setStatusFilter('');
+              setPriorityFilter('');
             }}
             className="text-blue-600 dark:text-blue-400 hover:underline text-xs ml-auto cursor-pointer"
           >
@@ -260,14 +270,20 @@ export const DevelopmentTasksPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {tasks.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="text-center py-8 text-slate-500">
+                    Loading development tasks...
+                  </td>
+                </tr>
+              ) : (priorityFilter ? tasks.filter((t) => t.priority === priorityFilter) : tasks).length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-center py-8 text-slate-500">
                     No development tasks match the criteria.
                   </td>
                 </tr>
               ) : (
-                tasks.map((task) => {
+                (priorityFilter ? tasks.filter((t) => t.priority === priorityFilter) : tasks).map((task) => {
                   const assignedDev = users.find((u) => u.id === task.developer_id);
                   const linkedReq = requirements.find((r) => r.id === task.requirement_id);
                   const activeReview = task.reviews && task.reviews.length > 0 ? task.reviews[0] : null;

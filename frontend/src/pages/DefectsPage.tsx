@@ -1,25 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
 import { Defect } from '../types';
-import { useAuth } from '../context/AuthContext';
 import { Badge } from '../components/Badge';
 import { Modal } from '../components/Modal';
 import {
   Bug,
   Plus,
-  AlertTriangle,
   History,
   CheckCircle2,
   XCircle,
   ArrowRight,
   Filter,
   Eye,
-  RotateCcw,
-  ShieldAlert,
 } from 'lucide-react';
 
 export const DefectsPage: React.FC = () => {
-  const { user } = useAuth();
   const [defects, setDefects] = useState<Defect[]>([]);
   const [loading, setLoading] = useState(true);
   const [severityFilter, setSeverityFilter] = useState('');
@@ -52,7 +47,7 @@ export const DefectsPage: React.FC = () => {
     actual_result: '',
   });
 
-  const loadDefects = async () => {
+  const loadDefects = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.getDefects({
@@ -61,20 +56,20 @@ export const DefectsPage: React.FC = () => {
         status_filter: statusFilter || undefined,
       });
       setDefects(data);
-      if (selectedDefect) {
-        const updated = data.find((d) => d.id === selectedDefect.id);
-        if (updated) setSelectedDefect(updated);
-      }
+      setSelectedDefect((prev) => {
+        if (!prev) return null;
+        return data.find((d) => d.id === prev.id) || null;
+      });
     } catch (e) {
       console.error('Failed to load defects', e);
     } finally {
       setLoading(false);
     }
-  };
+  }, [severityFilter, statusFilter]);
 
   useEffect(() => {
     loadDefects();
-  }, [severityFilter, statusFilter]);
+  }, [loadDefects]);
 
   const openStatusTransition = (def: Defect) => {
     setSelectedDefect(def);
@@ -225,18 +220,31 @@ export const DefectsPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {defects.map((def) => {
-                const isCriticalBlocker = def.severity === 'critical' && def.status !== 'closed';
-                return (
-                  <tr
-                    key={def.id}
-                    className={`transition-colors ${
-                      isCriticalBlocker ? 'bg-red-50/50 dark:bg-red-950/20 hover:bg-red-50 dark:hover:bg-red-950/30' : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'
-                    }`}
-                  >
-                    <td className="px-4 py-3 font-mono font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">
-                      {def.defect_code}
-                    </td>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="px-5 py-8 text-center text-slate-400">
+                    Loading defects register...
+                  </td>
+                </tr>
+              ) : defects.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-5 py-8 text-center text-slate-400">
+                    No defects found matching current filters.
+                  </td>
+                </tr>
+              ) : (
+                defects.map((def) => {
+                  const isCriticalBlocker = def.severity === 'critical' && def.status !== 'closed';
+                  return (
+                    <tr
+                      key={def.id}
+                      className={`transition-colors ${
+                        isCriticalBlocker ? 'bg-red-50/50 dark:bg-red-950/20 hover:bg-red-50 dark:hover:bg-red-950/30' : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'
+                      }`}
+                    >
+                      <td className="px-4 py-3 font-mono font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">
+                        {def.defect_code}
+                      </td>
                     <td className="px-4 py-3 max-w-sm">
                       <div className="font-medium text-slate-900 dark:text-slate-100 flex items-center space-x-1.5">
                         {isCriticalBlocker && (
@@ -282,7 +290,7 @@ export const DefectsPage: React.FC = () => {
                     </td>
                   </tr>
                 );
-              })}
+              }))}
             </tbody>
           </table>
         </div>

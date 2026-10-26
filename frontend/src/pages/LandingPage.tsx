@@ -24,6 +24,8 @@ interface LandingPageProps {
   onEnterApp: () => void;
 }
 
+const currentYear = new Date().getFullYear();
+
 export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
   const { theme, toggleTheme } = useTheme();
   const [activeWorkflowTab, setActiveWorkflowTab] = useState(0);
@@ -571,7 +573,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
           </div>
 
           <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 gap-2">
-            <p>© {new Date().getFullYear()} {brandConfig.companyName}. All rights reserved.</p>
+            <p>© {currentYear} {brandConfig.companyName}. All rights reserved.</p>
             <p>Engineered in compliance with ISO/IEC 25010 Software Quality Engineering Standards.</p>
           </div>
         </div>

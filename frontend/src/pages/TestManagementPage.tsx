@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
 import { TestCase } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -12,7 +12,6 @@ import {
   AlertCircle,
   CreditCard,
   Zap,
-  ExternalLink,
   ShieldCheck,
   Send,
 } from 'lucide-react';
@@ -37,7 +36,7 @@ export const TestManagementPage: React.FC = () => {
   const [simResponse, setSimResponse] = useState<any | null>(null);
   const [simLoading, setSimLoading] = useState(false);
 
-  const loadTests = async () => {
+  const loadTests = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.getTestCases({
@@ -50,11 +49,11 @@ export const TestManagementPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCategory]);
 
   useEffect(() => {
     loadTests();
-  }, [selectedCategory]);
+  }, [loadTests]);
 
   const openExecutionModal = (tc: TestCase) => {
     setExecutingTest(tc);
@@ -219,12 +218,26 @@ export const TestManagementPage: React.FC = () => {
 
       {/* 10 E-Commerce Test Scenarios Table */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-sm">
-        <div className="p-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950">
+        <div className="p-3.5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 dark:bg-slate-950">
           <div>
             <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Mandatory E-Commerce Test Matrix</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">10 scenarios covering checkout, duplicate payment, cart concurrency, and security</p>
           </div>
-          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 font-medium">{testCases.length} Test Scenarios</span>
+          <div className="flex items-center space-x-3">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md px-2.5 py-1 text-slate-700 dark:text-slate-300 text-xs focus:ring-1 focus:ring-blue-500 shadow-sm"
+            >
+              <option value="">All Categories</option>
+              <option value="checkout">Checkout</option>
+              <option value="payment">Payment</option>
+              <option value="cart">Cart</option>
+              <option value="inventory">Inventory</option>
+              <option value="security">Security</option>
+            </select>
+            <span className="text-xs font-mono text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">{testCases.length} Scenarios</span>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -240,15 +253,28 @@ export const TestManagementPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {testCases.map((tc) => {
-                const isFail = tc.status === 'fail';
-                return (
-                  <tr
-                    key={tc.id}
-                    className={`transition-colors ${
-                      isFail ? 'bg-red-50/40 dark:bg-red-950/20 hover:bg-red-50/60 dark:hover:bg-red-950/30' : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'
-                    }`}
-                  >
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="px-5 py-8 text-center text-slate-400">
+                    Loading test suite...
+                  </td>
+                </tr>
+              ) : testCases.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-5 py-8 text-center text-slate-400">
+                    No test cases found for the selected category.
+                  </td>
+                </tr>
+              ) : (
+                testCases.map((tc) => {
+                  const isFail = tc.status === 'fail';
+                  return (
+                    <tr
+                      key={tc.id}
+                      className={`transition-colors ${
+                        isFail ? 'bg-red-50/40 dark:bg-red-950/20 hover:bg-red-50/60 dark:hover:bg-red-950/30' : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'
+                      }`}
+                    >
                     <td className="px-5 py-3.5 font-mono font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
                       {tc.tc_code}
                     </td>
@@ -290,7 +316,7 @@ export const TestManagementPage: React.FC = () => {
                     </td>
                   </tr>
                 );
-              })}
+              }))}
             </tbody>
           </table>
         </div>

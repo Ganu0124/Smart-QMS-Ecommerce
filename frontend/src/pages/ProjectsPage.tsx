@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { Badge } from '../components/Badge';
@@ -44,7 +44,7 @@ export const ProjectsPage: React.FC = () => {
 
   const canManage = user?.role === 'admin' || user?.role === 'quality_manager';
 
-  const loadProjects = async () => {
+  const loadProjects = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.getProjects();
@@ -54,11 +54,11 @@ export const ProjectsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadProjects();
-  }, []);
+  }, [loadProjects]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,6 +102,8 @@ export const ProjectsPage: React.FC = () => {
     const matchesStatus = !statusFilter || p.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const nearDeadline = new Date(Date.now() + 7 * 86400000).toISOString();
 
   return (
     <div className="space-y-6">
@@ -169,7 +171,7 @@ export const ProjectsPage: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredProjects.map((p) => {
-            const isTargetNear = p.target_release_date && new Date(p.target_release_date) < new Date(Date.now() + 7 * 86400000);
+            const isTargetNear = Boolean(p.target_release_date && p.target_release_date < nearDeadline);
             return (
               <div
                 key={p.id}

@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
-import { Review, ReviewChecklistItem, DevTask, Project, Requirement } from '../types';
+import { Review, Project, Requirement } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { Badge } from '../components/Badge';
 import { Modal } from '../components/Modal';
 import {
   CheckSquare,
   ShieldCheck,
-  GitPullRequest,
   CheckCircle2,
   XCircle,
   ExternalLink,
@@ -33,13 +32,18 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ initialTab = 'design' 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const selectedReviewIdRef = React.useRef<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (initialTab) {
+    selectedReviewIdRef.current = selectedReview?.id || null;
+  }, [selectedReview]);
+
+  useEffect(() => {
+    if (initialTab && initialTab !== activeTab) {
       setActiveTab(initialTab);
     }
-  }, [initialTab]);
+  }, [initialTab, activeTab]);
 
   // Modals & Forms
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -57,7 +61,7 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ initialTab = 'design' 
 
   const isReviewer = ['admin', 'quality_manager', 'reviewer'].includes(user?.role || '');
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setActionError(null);
     try {
@@ -71,20 +75,10 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ initialTab = 'design' 
       setRequirements(reqs);
 
       if (revs.length > 0) {
-        if (!selectedReview) {
-          // Fetch full review with checklist
-          const full = await api.getReview(revs[0].id);
-          setSelectedReview(full);
-        } else {
-          const refreshed = revs.find((r) => r.id === selectedReview.id);
-          if (refreshed) {
-            const full = await api.getReview(refreshed.id);
-            setSelectedReview(full);
-          } else {
-            const full = await api.getReview(revs[0].id);
-            setSelectedReview(full);
-          }
-        }
+        const currentId = selectedReviewIdRef.current;
+        const target = currentId ? revs.find((r) => r.id === currentId) || revs[0] : revs[0];
+        const full = await api.getReview(target.id);
+        setSelectedReview(full);
       } else {
         setSelectedReview(null);
       }
@@ -93,11 +87,11 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ initialTab = 'design' 
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedProjectId, activeTab]);
 
   useEffect(() => {
     loadData();
-  }, [activeTab, selectedProjectId]);
+  }, [loadData]);
 
   const handleSelectReview = async (rev: Review) => {
     setActionError(null);

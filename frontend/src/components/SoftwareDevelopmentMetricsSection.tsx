@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
 import {
   Code2,
@@ -7,12 +7,9 @@ import {
   Calculator,
   TrendingDown,
   TrendingUp,
-  Info,
-  Layers,
   CheckCircle2,
   AlertCircle,
   X,
-  Sparkles,
 } from 'lucide-react';
 import {
   BarChart,
@@ -59,7 +56,7 @@ export const SoftwareDevelopmentMetricsSection: React.FC<{ projectId?: number }>
   const [calcSuccess, setCalcSuccess] = useState<string | null>(null);
   const [calculating, setCalculating] = useState(false);
 
-  const loadMetrics = async () => {
+  const loadMetrics = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.getSoftwareDevelopmentMetrics(projectId);
@@ -69,11 +66,11 @@ export const SoftwareDevelopmentMetricsSection: React.FC<{ projectId?: number }>
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
 
   useEffect(() => {
     loadMetrics();
-  }, [projectId]);
+  }, [loadMetrics]);
 
   // Find latest by key
   const devpMetric = metrics.find((m) => m.metric_key === 'DevP') || {
@@ -174,6 +171,9 @@ export const SoftwareDevelopmentMetricsSection: React.FC<{ projectId?: number }>
             <span className="text-xs px-2 py-0.5 rounded font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
               ISO/SQM Standards
             </span>
+            {loading && (
+              <span className="text-[10px] text-blue-500 animate-pulse font-mono">Syncing...</span>
+            )}
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Engineered metrics measuring development effort intensity, code reuse ratios, and documentation reuse baselines.

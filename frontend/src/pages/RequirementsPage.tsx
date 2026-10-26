@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
 import { Requirement, QualityObjective, Project, Review, RequirementHistory } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -68,7 +68,7 @@ export const RequirementsPage: React.FC = () => {
 
   const canApprove = ['admin', 'quality_manager', 'reviewer'].includes(user?.role || '');
 
-  const loadRequirements = async () => {
+  const loadRequirements = useCallback(async () => {
     setLoading(true);
     try {
       const [projs, reqs, objs] = await Promise.all([
@@ -91,11 +91,11 @@ export const RequirementsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedProjectId, statusFilter, priorityFilter, riskFilter, categoryFilter, searchQuery]);
 
   useEffect(() => {
     loadRequirements();
-  }, [selectedProjectId, statusFilter, priorityFilter, riskFilter, categoryFilter, searchQuery]);
+  }, [loadRequirements]);
 
   // Load detail data when a requirement is selected
   const handleSelectRequirement = async (req: Requirement) => {
@@ -388,12 +388,24 @@ export const RequirementsPage: React.FC = () => {
           <option value="low">Low</option>
         </select>
 
-        {(searchQuery || statusFilter || priorityFilter || categoryFilter) && (
+        <select
+          value={riskFilter}
+          onChange={(e) => setRiskFilter(e.target.value)}
+          className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-md px-2.5 py-1.5 text-slate-700 dark:text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+        >
+          <option value="">All Risk Levels</option>
+          <option value="high">High Risk</option>
+          <option value="medium">Medium Risk</option>
+          <option value="low">Low Risk</option>
+        </select>
+
+        {(searchQuery || statusFilter || priorityFilter || riskFilter || categoryFilter) && (
           <button
             onClick={() => {
               setSearchQuery('');
               setStatusFilter('');
               setPriorityFilter('');
+              setRiskFilter('');
               setCategoryFilter('');
             }}
             className="text-blue-600 dark:text-blue-400 hover:underline text-xs ml-auto font-medium cursor-pointer"

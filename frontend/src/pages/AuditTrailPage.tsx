@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
 import {
   Search,
@@ -26,7 +26,7 @@ export const AuditTrailPage: React.FC = () => {
   const [entityFilter, setEntityFilter] = useState('');
   const [actionFilter, setActionFilter] = useState('');
 
-  const loadAuditLogs = async () => {
+  const loadAuditLogs = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.getAuditLogs({ limit: 100 });
@@ -36,11 +36,11 @@ export const AuditTrailPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadAuditLogs();
-  }, []);
+  }, [loadAuditLogs]);
 
   const filteredLogs = logs.filter((log) => {
     const matchesSearch =

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
 import { QualityObjective, RiskAssessment, QAPlan, ProjectMilestone, Project } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -13,13 +13,14 @@ import {
   User,
   Flag,
   Search,
-  Filter,
   Edit2,
   Trash2,
   Clock,
   CheckCircle2,
   TrendingUp,
 } from 'lucide-react';
+
+const TODAY_DATE_STR = new Date().toISOString().split('T')[0];
 
 export const QualityPlanningPage: React.FC = () => {
   const { user } = useAuth();
@@ -68,7 +69,7 @@ export const QualityPlanningPage: React.FC = () => {
 
   const canManage = ['admin', 'quality_manager'].includes(user?.role || '');
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const [projs, objs, rks, qps, mls] = await Promise.all([
@@ -94,11 +95,11 @@ export const QualityPlanningPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedProjectId, factorFilter, statusFilter, priorityFilter, searchQuery]);
 
   useEffect(() => {
     loadData();
-  }, [selectedProjectId, factorFilter, statusFilter, priorityFilter, searchQuery]);
+  }, [loadData]);
 
   const handleOpenCreateModal = () => {
     setEditingObjective(null);
@@ -203,7 +204,7 @@ export const QualityPlanningPage: React.FC = () => {
   const atRiskCount = objectives.filter((o) => o.status === 'at_risk').length;
   const overdueCount = objectives.filter((o) => {
     if (o.status === 'overdue') return true;
-    if (o.due_date && new Date(o.due_date) < new Date() && o.status !== 'achieved') return true;
+    if (o.due_date && o.due_date < TODAY_DATE_STR && o.status !== 'achieved') return true;
     return false;
   }).length;
 
@@ -400,7 +401,13 @@ export const QualityPlanningPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {objectives.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={canManage ? 8 : 7} className="text-center py-8 text-slate-500">
+                    Loading quality objectives...
+                  </td>
+                </tr>
+              ) : objectives.length === 0 ? (
                 <tr>
                   <td colSpan={canManage ? 8 : 7} className="text-center py-8 text-slate-500">
                     No quality objectives match the selected filters.
@@ -410,7 +417,7 @@ export const QualityPlanningPage: React.FC = () => {
                 objectives.map((obj) => {
                   const isOverdue =
                     obj.status === 'overdue' ||
-                    (obj.due_date && new Date(obj.due_date) < new Date() && obj.status !== 'achieved');
+                    (obj.due_date && obj.due_date < TODAY_DATE_STR && obj.status !== 'achieved');
 
                   return (
                     <tr key={obj.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
