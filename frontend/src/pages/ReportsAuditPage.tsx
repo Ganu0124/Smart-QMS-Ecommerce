@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
 import { AuditLog } from '../types';
 import {
@@ -7,8 +7,6 @@ import {
   FileText,
   History,
   Download,
-  ShieldCheck,
-  Filter,
 } from 'lucide-react';
 
 export const ReportsAuditPage: React.FC = () => {
@@ -16,7 +14,7 @@ export const ReportsAuditPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [entityFilter, setEntityFilter] = useState('');
 
-  const loadAuditLogs = async () => {
+  const loadAuditLogs = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.getAuditLogs({
@@ -29,11 +27,11 @@ export const ReportsAuditPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [entityFilter]);
 
   useEffect(() => {
     loadAuditLogs();
-  }, [entityFilter]);
+  }, [loadAuditLogs]);
 
   const reportCards = [
     {
@@ -166,30 +164,44 @@ export const ReportsAuditPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                  <td className="px-5 py-3 font-mono text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                    {new Date(log.timestamp).toLocaleString()}
-                  </td>
-                  <td className="px-4 py-3 font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap">
-                    @{log.username}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-mono">
-                      {log.action}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                    {log.entity_type}
-                  </td>
-                  <td className="px-4 py-3 font-mono text-blue-600 dark:text-blue-400 font-semibold whitespace-nowrap">
-                    {log.entity_id}
-                  </td>
-                  <td className="px-5 py-3 text-slate-600 dark:text-slate-400 text-[11px] max-w-md truncate">
-                    {log.change_details}
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="px-5 py-8 text-center text-slate-400">
+                    Loading audit trail logs...
                   </td>
                 </tr>
-              ))}
+              ) : logs.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-5 py-8 text-center text-slate-400">
+                    No audit records found.
+                  </td>
+                </tr>
+              ) : (
+                logs.map((log) => (
+                  <tr key={log.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                    <td className="px-5 py-3 font-mono text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                      {new Date(log.timestamp).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap">
+                      @{log.username}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-mono">
+                        {log.action}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                      {log.entity_type}
+                    </td>
+                    <td className="px-4 py-3 font-mono text-blue-600 dark:text-blue-400 font-semibold whitespace-nowrap">
+                      {log.entity_id}
+                    </td>
+                    <td className="px-5 py-3 text-slate-600 dark:text-slate-400 text-[11px] max-w-md truncate">
+                      {log.change_details}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

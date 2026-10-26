@@ -1,22 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
-import { Release, ReleaseGateResult } from '../types';
+import { Release } from '../types';
 import { useAuth } from '../context/AuthContext';
-import { Badge } from '../components/Badge';
 import { Modal } from '../components/Modal';
 import {
   ShieldCheck,
   ShieldAlert,
-  Play,
   CheckCircle2,
   XCircle,
-  AlertOctagon,
-  ArrowRight,
   RotateCw,
-  FileText,
   Lock,
-  Unlock,
-  Sparkles,
   Info,
 } from 'lucide-react';
 
@@ -32,29 +25,27 @@ export const ReleaseGatePage: React.FC = () => {
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [approvalNotes, setApprovalNotes] = useState('');
 
-  const loadReleases = async () => {
+  const loadReleases = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.getReleases(1);
       setReleases(data);
       if (data.length > 0) {
-        if (!selectedRelease) {
-          setSelectedRelease(data[0]);
-        } else {
-          const updated = data.find((r) => r.id === selectedRelease.id);
-          if (updated) setSelectedRelease(updated);
-        }
+        setSelectedRelease((prev) => {
+          if (!prev) return data[0];
+          return data.find((r) => r.id === prev.id) || data[0];
+        });
       }
     } catch (e) {
       console.error('Failed to load releases', e);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadReleases();
-  }, []);
+  }, [loadReleases]);
 
   const handleEvaluateGate = async () => {
     if (!selectedRelease) return;
@@ -118,6 +109,23 @@ export const ReleaseGatePage: React.FC = () => {
 
         {/* Release Selector and Action buttons */}
         <div className="flex items-center space-x-2">
+          {releases.length > 1 && (
+            <select
+              value={selectedRelease?.id}
+              onChange={(e) => {
+                const found = releases.find((r) => r.id === Number(e.target.value));
+                if (found) setSelectedRelease(found);
+              }}
+              className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md px-2.5 py-1.5 text-slate-700 dark:text-slate-300 text-xs font-medium focus:ring-1 focus:ring-blue-500 shadow-sm"
+            >
+              {releases.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.release_code} - {r.target_environment}
+                </option>
+              ))}
+            </select>
+          )}
+
           <button
             onClick={handleEvaluateGate}
             disabled={evaluating}
@@ -177,7 +185,9 @@ export const ReleaseGatePage: React.FC = () => {
                   ? `Approved for production deployment by Quality Management.`
                   : isBlocked
                   ? `Release deployment blocked: 1 or more mandatory quality criteria failed. Resolve the highlighted action items below to qualify for deployment.`
-                  : `Release cleared for sign-off: All 8 automated quality criteria have passed successfully.`}
+                  : isReady
+                  ? `Release cleared for sign-off: All 8 automated quality criteria have passed successfully.`
+                  : `Release evaluation status: ${selectedRelease.release_decision}.`}
               </p>
             </div>
 

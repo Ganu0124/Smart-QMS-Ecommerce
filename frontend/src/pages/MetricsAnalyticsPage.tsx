@@ -4,12 +4,7 @@ import { QualityMetricsDetails } from '../types';
 import { SoftwareDevelopmentMetricsSection } from '../components/SoftwareDevelopmentMetricsSection';
 import {
   BarChart3,
-  TrendingUp,
-  Info,
-  CheckCircle2,
-  AlertTriangle,
   Award,
-  Zap,
 } from 'lucide-react';
 import {
   BarChart,
@@ -19,10 +14,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
 } from 'recharts';
 
 export const MetricsAnalyticsPage: React.FC = () => {
@@ -50,7 +41,7 @@ export const MetricsAnalyticsPage: React.FC = () => {
 
   // Categories chart data
   const categoryChartData = Object.entries(metrics.category_breakdown)
-    .filter(([_, count]) => count > 0)
+    .filter(([, count]) => count > 0)
     .map(([cat, count]) => ({
       category: cat,
       count,
