@@ -1,18 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
 import { DashboardSummary, QualityMetricsDetails } from '../types';
 import { ReleaseGateAlertBanner } from '../components/ReleaseGateAlertBanner';
-import { Badge } from '../components/Badge';
 import { SoftwareDevelopmentMetricsSection } from '../components/SoftwareDevelopmentMetricsSection';
 import {
-  FileText,
   CheckCircle,
   FlaskConical,
   Bug,
   ShieldCheck,
-  RefreshCw,
-  TrendingUp,
-  AlertOctagon,
   ArrowUpRight,
   ShieldAlert,
 } from 'lucide-react';
@@ -53,7 +48,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateTab }) =
   const [metrics, setMetrics] = useState<QualityMetricsDetails | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const [sumData, metData] = await Promise.all([
@@ -67,11 +62,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateTab }) =
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   if (loading || !summary || !metrics) {
     return (
@@ -98,14 +93,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateTab }) =
     name,
     value,
   }));
-
-  // Categories chart data
-  const categoryData = Object.entries(metrics.category_breakdown)
-    .filter(([_, v]) => v > 0)
-    .map(([name, count]) => ({
-      name,
-      count,
-    }));
 
   return (
     <div className="space-y-6">

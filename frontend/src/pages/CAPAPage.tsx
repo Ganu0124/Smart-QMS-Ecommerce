@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
 import { CAPA } from '../types';
 import { Badge } from '../components/Badge';
@@ -7,13 +7,13 @@ import {
   RefreshCw,
   Plus,
   AlertCircle,
-  CheckCircle2,
   Calendar,
-  User,
   ShieldCheck,
   Eye,
   FileCheck,
 } from 'lucide-react';
+
+const getDefaultDueDate = () => new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
 
 export const CAPAPage: React.FC = () => {
   const [capas, setCapas] = useState<CAPA[]>([]);
@@ -29,7 +29,7 @@ export const CAPAPage: React.FC = () => {
 
   // Create Modal
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newCapa, setNewCapa] = useState({
+  const [newCapa, setNewCapa] = useState(() => ({
     title: '',
     defect_id: 1,
     root_cause_analysis: '',
@@ -37,28 +37,28 @@ export const CAPAPage: React.FC = () => {
     corrective_action: '',
     preventive_action: '',
     owner_id: 3, // Liam Patel (Dev)
-    due_date: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-  });
+    due_date: getDefaultDueDate(),
+  }));
 
-  const loadCapas = async () => {
+  const loadCapas = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.getCapas({ project_id: 1 });
       setCapas(data);
-      if (selectedCapa) {
-        const updated = data.find((c) => c.id === selectedCapa.id);
-        if (updated) setSelectedCapa(updated);
-      }
+      setSelectedCapa((prev) => {
+        if (!prev) return null;
+        return data.find((c) => c.id === prev.id) || null;
+      });
     } catch (e) {
       console.error('Failed to load CAPAs', e);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadCapas();
-  }, []);
+  }, [loadCapas]);
 
   const openStatusModal = (c: CAPA) => {
     setSelectedCapa(c);

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
-import { Project, TraceabilityMatrixResponse, TraceabilityItem } from '../types';
+import { Project, TraceabilityMatrixResponse } from '../types';
 import { Badge } from '../components/Badge';
 import {
   Layers,
@@ -9,15 +9,11 @@ import {
   CheckSquare,
   GitPullRequest,
   FlaskConical,
-  Bug,
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  Clock,
-  ArrowRight,
   ShieldCheck,
   Search,
-  Filter,
 } from 'lucide-react';
 
 export const TraceabilityPage: React.FC = () => {
@@ -30,7 +26,7 @@ export const TraceabilityPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [gapFilter, setGapFilter] = useState<'all' | 'gaps_only' | 'traceable_only'>('all');
 
-  const loadMatrix = async () => {
+  const loadMatrix = useCallback(async () => {
     setLoading(true);
     try {
       const [projs, matrixRes] = await Promise.all([
@@ -44,11 +40,11 @@ export const TraceabilityPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedProjectId]);
 
   useEffect(() => {
     loadMatrix();
-  }, [selectedProjectId]);
+  }, [loadMatrix]);
 
   const filteredItems = (data?.matrix || []).filter((item) => {
     if (searchQuery) {
