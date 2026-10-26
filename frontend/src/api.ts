@@ -1,6 +1,6 @@
 function resolveApiBase(): string {
   const envUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
-  if (envUrl) {
+  if (envUrl && envUrl.startsWith('http')) {
     const stripped = envUrl.replace(/\/+$/, '');
     return stripped.endsWith('/api') ? stripped : `${stripped}/api`;
   }
