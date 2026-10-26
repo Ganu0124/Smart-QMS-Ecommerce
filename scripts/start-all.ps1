@@ -26,14 +26,14 @@ if ($LASTEXITCODE -ne 0) {
 
 # 3. Launch Backend Server
 Write-Host "[2/3] Launching FastAPI Backend on http://127.0.0.1:8000..." -ForegroundColor Yellow
-Start-Process -FilePath $pythonExe -ArgumentList "-m uvicorn app.main:app --host 127.0.0.1 --port 8000" -WorkingDirectory $backendDir
+Start-Process -FilePath $pythonExe -ArgumentList "-m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload" -WorkingDirectory $backendDir
 
 # Wait for backend readiness
 Start-Sleep -Seconds 2
 
 # 4. Launch Frontend Dev Server
 Write-Host "[3/3] Launching Vite Frontend on http://127.0.0.1:5173..." -ForegroundColor Yellow
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c npm run dev -- --host 127.0.0.1 --port 5173" -WorkingDirectory $frontendDir
+Start-Process -FilePath "cmd.exe" -ArgumentList "/c npm run dev" -WorkingDirectory $frontendDir
 
 Write-Host "`n==========================================================" -ForegroundColor Green
 Write-Host "  SmartQMS Services Started Successfully!" -ForegroundColor Green

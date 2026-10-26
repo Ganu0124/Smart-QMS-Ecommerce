@@ -289,8 +289,8 @@ cd backend
 | **Quality Manager** | `qamanager` | `Manager@12345` | Quality objectives, QA plans, test execution & release authorization |
 | **Administrator** | `admin` | `Admin@12345` | Complete system governance, user management & project settings |
 | **Senior Developer** | `developer` | `Dev@12345` | Development tasks, pull request submission & defect fixes |
-| **Reviewer** | `reviewer` | `Review@12345` | Independent architecture and code review checklist sign-offs |
-| **QA Test Engineer** | `tester` | `Test@12345` | Test suite execution, idempotency verification & defect logging |
+| **Reviewer** | `reviewer` | `Reviewer@12345` | Independent architecture and code review checklist sign-offs |
+| **QA Test Engineer** | `tester` | `Tester@12345` | Test suite execution, idempotency verification & defect logging |
 
 ---
 
