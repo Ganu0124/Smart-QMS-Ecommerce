@@ -4,7 +4,7 @@ function resolveApiBase(): string {
     const stripped = envUrl.replace(/\/+$/, '');
     return stripped.endsWith('/api') ? stripped : `${stripped}/api`;
   }
-  return 'http://127.0.0.1:8000/api';
+  return '/api';
 }
 
 const API_BASE = resolveApiBase();

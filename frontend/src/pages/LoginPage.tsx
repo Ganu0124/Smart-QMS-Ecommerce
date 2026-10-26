@@ -22,14 +22,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToWebsite }) => {
   const [password, setPassword] = useState('Manager@12345');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showSandboxRoles, setShowSandboxRoles] = useState(false);
+  const [showSandboxRoles, setShowSandboxRoles] = useState(true);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const executeLogin = async (userToAuth: string, passToAuth: string) => {
     setError(null);
     setLoading(true);
     try {
-      await login(username, password);
+      await login(userToAuth, passToAuth);
     } catch (err: any) {
       let message = err.message || 'Authentication failed. Please verify credentials.';
       if (message === 'Not Found' || message.includes('404')) {
@@ -43,11 +42,30 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToWebsite }) => {
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!username || !password) {
+      setError('Please enter both username and password.');
+      return;
+    }
+    await executeLogin(username, password);
+  };
+
   const selectSandboxAccount = (uname: string) => {
     const cred = DEMO_CREDENTIALS[uname];
     if (cred) {
       setUsername(uname);
       setPassword(cred.pass);
+      setError(null);
+    }
+  };
+
+  const handleQuickLogin = async (uname: string) => {
+    const cred = DEMO_CREDENTIALS[uname];
+    if (cred) {
+      setUsername(uname);
+      setPassword(cred.pass);
+      await executeLogin(uname, cred.pass);
     }
   };
 
@@ -159,26 +177,39 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToWebsite }) => {
             </button>
 
             {showSandboxRoles && (
-              <div className="grid grid-cols-1 gap-1.5 mt-2 pt-1">
+              <div className="grid grid-cols-1 gap-2 mt-2 pt-1">
                 {Object.entries(DEMO_CREDENTIALS).map(([uname, info]) => (
-                  <button
+                  <div
                     key={uname}
-                    type="button"
-                    onClick={() => selectSandboxAccount(uname)}
-                    className={`px-3 py-1.5 rounded-md text-left text-xs transition-colors flex items-center justify-between border cursor-pointer ${
+                    className={`p-2 rounded-md text-xs transition-colors flex items-center justify-between border ${
                       username === uname
                         ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-300 dark:border-blue-800 text-blue-900 dark:text-blue-200'
                         : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-850'
                     }`}
                   >
-                    <div>
+                    <button
+                      type="button"
+                      onClick={() => selectSandboxAccount(uname)}
+                      className="flex-1 text-left cursor-pointer focus:outline-none"
+                    >
                       <div className="font-semibold text-slate-900 dark:text-slate-200">{info.title}</div>
                       <div className="text-[10px] text-slate-500 dark:text-slate-400">Account: @{uname}</div>
+                    </button>
+                    <div className="flex items-center space-x-1.5 shrink-0 ml-2">
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+                        {info.role}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => handleQuickLogin(uname)}
+                        className="px-2 py-1 text-[10px] font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+                        title={`Sign in immediately as ${info.title}`}
+                      >
+                        Sign In
+                      </button>
                     </div>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
-                      {info.role}
-                    </span>
-                  </button>
+                  </div>
                 ))}
               </div>
             )}
