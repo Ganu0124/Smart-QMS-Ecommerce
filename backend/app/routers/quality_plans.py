@@ -147,7 +147,7 @@ def create_risk(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(["Administrator", "Quality Manager", "admin", "quality_manager"]))
 ):
-    risk = RiskAssessment(**data.dict())
+    risk = RiskAssessment(**data.model_dump())
     db.add(risk)
     db.commit()
     db.refresh(risk)
@@ -168,7 +168,7 @@ def create_qa_plan(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(["admin", "quality_manager"]))
 ):
-    plan = QualityAssurancePlan(**data.dict())
+    plan = QualityAssurancePlan(**data.model_dump())
     db.add(plan)
     db.commit()
     db.refresh(plan)
@@ -189,7 +189,7 @@ def create_milestone(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(["admin", "quality_manager"]))
 ):
-    ms = ProjectMilestone(**data.dict())
+    ms = ProjectMilestone(**data.model_dump())
     db.add(ms)
     db.commit()
     db.refresh(ms)

@@ -10,17 +10,14 @@ import {
   GitPullRequest,
   CheckCircle2,
   XCircle,
-  Clock,
   ExternalLink,
   Lock,
   AlertTriangle,
   Layers,
   Code2,
   Plus,
-  User,
   AlertCircle,
   CheckCircle,
-  RefreshCw,
   GitBranch,
 } from 'lucide-react';
 
@@ -159,7 +156,7 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ initialTab = 'design' 
   const handleCreateReview = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const created = await api.createReview({
+      await api.createReview({
         project_id: selectedProjectId,
         review_type: activeTab,
         title: newReviewForm.title,

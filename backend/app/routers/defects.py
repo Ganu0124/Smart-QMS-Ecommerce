@@ -123,7 +123,7 @@ def update_defect_status(
     defect.status = target_status
 
     if target_status == "closed":
-        defect.closed_at = datetime.datetime.utcnow()
+        defect.closed_at = datetime.datetime.now(datetime.timezone.utc)
     elif old_status == "closed" and target_status != "closed":
         defect.closed_at = None
 
@@ -151,7 +151,7 @@ def update_defect_details(
     if not defect:
         raise HTTPException(status_code=404, detail="Defect not found")
 
-    for k, v in data.dict(exclude_unset=True).items():
+    for k, v in data.model_dump(exclude_unset=True).items():
         setattr(defect, k, v)
 
     db.commit()

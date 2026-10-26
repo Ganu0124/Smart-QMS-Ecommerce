@@ -1,6 +1,6 @@
 from typing import List, Optional
 import datetime
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 # ----------------- User Schemas -----------------
 class UserLogin(BaseModel):
@@ -34,8 +34,7 @@ class UserResponse(BaseModel):
     username: Optional[str] = None
     must_change_password: Optional[bool] = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class TokenResponse(BaseModel):
     access_token: str
@@ -75,8 +74,7 @@ class ProjectResponse(BaseModel):
     updated_at: Optional[datetime.datetime] = None
     target_release_date: Optional[datetime.datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ----------------- Quality Planning Schemas -----------------
 class QualityObjectiveCreate(BaseModel):
@@ -133,8 +131,7 @@ class QualityObjectiveResponse(BaseModel):
     responsible_owner: Optional[str] = None
     deadline: Optional[datetime.datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class RiskAssessmentCreate(BaseModel):
@@ -158,8 +155,7 @@ class RiskAssessmentResponse(BaseModel):
     mitigation_strategy: str
     status: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class QAPlanCreate(BaseModel):
     project_id: int
@@ -181,8 +177,7 @@ class QAPlanResponse(BaseModel):
     release_criteria_summary: str
     created_at: datetime.datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class MilestoneCreate(BaseModel):
     project_id: int
@@ -199,8 +194,7 @@ class MilestoneResponse(BaseModel):
     status: str
     criteria: Optional[str]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ----------------- Requirement Schemas -----------------
 class RequirementCreate(BaseModel):
@@ -241,8 +235,7 @@ class RequirementHistoryResponse(BaseModel):
     change_summary: Optional[str]
     timestamp: datetime.datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class RequirementResponse(BaseModel):
     id: int
@@ -267,8 +260,7 @@ class RequirementResponse(BaseModel):
     updated_at: datetime.datetime
     versions: List[RequirementHistoryResponse] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ----------------- Review Schemas -----------------
 class ChecklistItemCreate(BaseModel):
@@ -293,8 +285,7 @@ class ChecklistItemResponse(BaseModel):
     result: str
     comments: Optional[str]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ReviewCreate(BaseModel):
     project_id: int
@@ -331,8 +322,7 @@ class ReviewResponse(BaseModel):
     created_at: datetime.datetime
     checklist_items: List[ChecklistItemResponse] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ----------------- Task Schemas -----------------
 class TaskCreate(BaseModel):
@@ -375,8 +365,7 @@ class TaskResponse(BaseModel):
     review_id: Optional[int]
     created_at: datetime.datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ----------------- Traceability Schemas -----------------
 class TraceabilityItem(BaseModel):
@@ -453,8 +442,7 @@ class TestCaseResponse(BaseModel):
     evidence_url: Optional[str]
     created_at: datetime.datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PaymentSimulateRequest(BaseModel):
     order_id: str
@@ -514,8 +502,7 @@ class DefectHistoryResponse(BaseModel):
     comments: Optional[str]
     timestamp: datetime.datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class DefectResponse(BaseModel):
     id: int
@@ -544,8 +531,7 @@ class DefectResponse(BaseModel):
     closed_at: Optional[datetime.datetime]
     history: List[DefectHistoryResponse] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ----------------- Release Schemas -----------------
 class ReleaseCreate(BaseModel):
@@ -563,8 +549,7 @@ class ReleaseGateResultResponse(BaseModel):
     related_record: Optional[str]
     required_corrective_action: Optional[str]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ReleaseResponse(BaseModel):
     id: int
@@ -582,8 +567,7 @@ class ReleaseResponse(BaseModel):
     created_at: datetime.datetime
     gate_results: List[ReleaseGateResultResponse] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ReleaseApproveRequest(BaseModel):
     notes: Optional[str] = None
@@ -633,8 +617,7 @@ class CAPAResponse(BaseModel):
     closed_at: Optional[datetime.datetime]
     is_overdue: bool = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ----------------- Metrics & Dashboard Schemas -----------------
 class DashboardSummary(BaseModel):
@@ -693,8 +676,7 @@ class SoftwareQualityMetricResponse(BaseModel):
     measurement_date: datetime.datetime
     recorded_by_id: Optional[int] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ----------------- Audit Log Schemas -----------------
 class AuditLogResponse(BaseModel):
@@ -707,5 +689,4 @@ class AuditLogResponse(BaseModel):
     change_details: Optional[str]
     timestamp: datetime.datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

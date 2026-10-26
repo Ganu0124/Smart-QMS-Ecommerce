@@ -83,7 +83,7 @@ def execute_test_case(
     tc.evidence_notes = exec_data.evidence_notes
     tc.evidence_url = exec_data.evidence_url
     tc.tester_id = current_user.id
-    tc.execution_date = datetime.datetime.utcnow()
+    tc.execution_date = datetime.datetime.now(datetime.timezone.utc)
 
     db.commit()
     db.refresh(tc)
@@ -116,7 +116,7 @@ def simulate_payment_gateway(
         "amount": req.amount,
         "currency": req.currency,
         "status": "CHARGED_SUCCESSFULLY",
-        "timestamp": datetime.datetime.utcnow().isoformat()
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
     }
     PROCESSED_IDEMPOTENCY_KEYS[key] = record
 

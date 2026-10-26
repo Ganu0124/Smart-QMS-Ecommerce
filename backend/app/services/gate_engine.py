@@ -384,7 +384,7 @@ def evaluate_release_gate(db: Session, release: Release, evaluator: User) -> Rel
         release.release_decision = "READY_FOR_APPROVAL"
         
     release.evaluator_id = evaluator.id if evaluator else None
-    release.evaluated_at = datetime.datetime.utcnow()
+    release.evaluated_at = datetime.datetime.now(datetime.timezone.utc)
     
     # Append to approval history
     history_entry = f"[{release.evaluated_at.isoformat()}] Evaluated by {evaluator.username if evaluator else 'SYSTEM'}: {release.release_decision}"

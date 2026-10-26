@@ -74,7 +74,7 @@ def seed_database(db: Session):
         name="E-Commerce Core Platform (Checkout & Payments)",
         description="Enterprise online commerce platform processing high-volume transactions with strict zero-double-charge and ACID compliance requirements.",
         status="active",
-        target_release_date=datetime.datetime.utcnow() + datetime.timedelta(days=14)
+        target_release_date=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=14)
     )
     db.add(project)
     db.commit()
@@ -650,7 +650,7 @@ def seed_database(db: Session):
             status=stat,
             is_mandatory=mand,
             tester_id=tid,
-            execution_date=datetime.datetime.utcnow(),
+            execution_date=datetime.datetime.now(datetime.timezone.utc),
             evidence_notes=ev,
             evidence_url="https://artifacts.smartqms.local/evidence/" + tc_code
         )
@@ -703,7 +703,7 @@ def seed_database(db: Session):
         corrective_action="Switched cart currency calculation engine to Python Decimal with ROUND_HALF_EVEN.",
         preventive_action="Added unit test matrix with 100 random fractional currency amounts.",
         resolution_notes="Fixed in PR #108. Verified with 100 test cases.",
-        closed_at=datetime.datetime.utcnow() - datetime.timedelta(days=2)
+        closed_at=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=2)
     )
 
     def3 = Defect(
@@ -727,7 +727,7 @@ def seed_database(db: Session):
         corrective_action="Extended IP and username based rate limiter to all /api/auth routes.",
         preventive_action="Security automated suite updated to test brute-force on all entry points.",
         resolution_notes="Rate limiter verified with 50 test probes.",
-        closed_at=datetime.datetime.utcnow() - datetime.timedelta(days=3)
+        closed_at=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=3)
     )
 
     db.add_all([def1, def2, def3])
@@ -745,7 +745,7 @@ def seed_database(db: Session):
         corrective_action="1. Deploy distributed mutex lock on transaction ID.\n2. Enforce unique index at database storage engine level.",
         preventive_action="1. Establish automated concurrency regression test suite in CI.\n2. Add idempotency checklist item to mandatory Architecture Design Review.",
         owner_id=dev.id,
-        due_date=datetime.datetime.utcnow() + datetime.timedelta(days=5),
+        due_date=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=5),
         status="in_progress",
         verification_evidence="Simulation test script TC-01-004 prepared for verification.",
         effectiveness_review="Pending retesting and release evaluation."
@@ -761,7 +761,7 @@ def seed_database(db: Session):
         version_name="Release Candidate 1.0.0-RC1 (Staging)",
         target_environment="staging",
         release_decision="BLOCKED",
-        approval_history=f"[{datetime.datetime.utcnow().isoformat()}] Release Candidate 1.0.0-RC1 created by {qamanager.username}"
+        approval_history=f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Release Candidate 1.0.0-RC1 created by {qamanager.username}"
     )
     db.add(rel1)
     db.commit()

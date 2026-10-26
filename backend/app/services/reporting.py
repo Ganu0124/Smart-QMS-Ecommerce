@@ -114,7 +114,7 @@ def generate_pdf_report(db: Session, report_type: str, project_id: int = None) -
         if proj:
             proj_name = f"{proj.name} ({proj.code})"
     
-    now_str = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+    now_str = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     elements.append(Paragraph(f"Report Type: <b>{report_type.upper()}</b> | Scope: <b>{proj_name}</b> | Generated: {now_str}", subtitle_style))
     elements.append(Spacer(1, 15))
 

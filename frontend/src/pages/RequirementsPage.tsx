@@ -14,16 +14,10 @@ import {
   ShieldCheck,
   AlertCircle,
   Eye,
-  Filter,
   Search,
   Edit2,
   CheckSquare,
   AlertTriangle,
-  Clock,
-  User,
-  Layers,
-  ArrowRight,
-  Sparkles,
 } from 'lucide-react';
 
 export const RequirementsPage: React.FC = () => {
@@ -399,7 +393,7 @@ export const RequirementsPage: React.FC = () => {
             onClick={() => {
               setSearchQuery('');
               setStatusFilter('');
-              priorityFilter && setPriorityFilter('');
+              setPriorityFilter('');
               setCategoryFilter('');
             }}
             className="text-blue-600 dark:text-blue-400 hover:underline text-xs ml-auto font-medium cursor-pointer"
@@ -426,7 +420,13 @@ export const RequirementsPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {requirements.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="text-center py-8 text-slate-500">
+                    Loading specifications...
+                  </td>
+                </tr>
+              ) : requirements.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-center py-8 text-slate-500">
                     No requirements found matching criteria.

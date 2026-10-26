@@ -7,6 +7,7 @@ def utc_now():
     return datetime.now(timezone.utc)
 
 class TestCase(Base):
+    __test__ = False
     __tablename__ = "test_cases"
 
     id = Column(Integer, primary_key=True, index=True)

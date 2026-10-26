@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/capas", tags=["Corrective & Preventive Actions (
 
 def generate_capa_code(db: Session, project_id: int) -> str:
     count = db.query(CAPA).filter(CAPA.project_id == project_id).count() + 1
-    year = datetime.datetime.utcnow().year
+    year = datetime.datetime.now(datetime.timezone.utc).year
     return f"CAPA-{year}-{project_id:02d}-{count:03d}"
 
 @router.get("", response_model=list[CAPAResponse])
@@ -29,7 +29,7 @@ def get_capas(
         query = query.filter(CAPA.status == status_filter)
     
     capas = query.all()
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     # Compute overdue flag
     result = []
     for c in capas:
@@ -62,7 +62,7 @@ def get_capa(capa_id: int, db: Session = Depends(get_db), current_user: User = D
     c = db.query(CAPA).filter(CAPA.id == capa_id).first()
     if not c:
         raise HTTPException(status_code=404, detail="CAPA not found")
-    is_overdue = (c.status != "closed") and (c.due_date < datetime.datetime.utcnow())
+    is_overdue = (c.status != "closed") and (c.due_date < datetime.datetime.now(datetime.timezone.utc))
     return CAPAResponse(
         id=c.id,
         capa_code=c.capa_code,
@@ -141,15 +141,15 @@ def update_capa(
         raise HTTPException(status_code=404, detail="CAPA not found")
 
     old_status = capa.status
-    for k, v in data.dict(exclude_unset=True).items():
+    for k, v in data.model_dump(exclude_unset=True).items():
         setattr(capa, k, v)
 
     if data.status == "closed" and old_status != "closed":
-        capa.closed_at = datetime.datetime.utcnow()
+        capa.closed_at = datetime.datetime.now(datetime.timezone.utc)
 
     db.commit()
     db.refresh(capa)
-    is_overdue = (capa.status != "closed") and (capa.due_date < datetime.datetime.utcnow())
+    is_overdue = (capa.status != "closed") and (capa.due_date < datetime.datetime.now(datetime.timezone.utc))
     log_audit(db, current_user, "UPDATE", "CAPA", capa.capa_code, f"Updated CAPA status: {capa.status}")
     return CAPAResponse(
         id=capa.id,

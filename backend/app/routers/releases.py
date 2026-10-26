@@ -49,7 +49,7 @@ def create_release(
         version_name=data.version_name,
         target_environment=data.target_environment,
         release_decision="BLOCKED",
-        approval_history=f"[{datetime.datetime.utcnow().isoformat()}] Release created by {current_user.username}"
+        approval_history=f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Release created by {current_user.username}"
     )
     db.add(release)
     db.commit()
@@ -110,7 +110,7 @@ def approve_release(
 
     release.release_decision = "APPROVED"
     release.approved_by_id = current_user.id
-    release.approved_at = datetime.datetime.utcnow()
+    release.approved_at = datetime.datetime.now(datetime.timezone.utc)
     release.approval_notes = data.notes
 
     approval_log = f"[{release.approved_at.isoformat()}] Formally APPROVED for {release.target_environment} deployment by {current_user.full_name} ({current_user.role})"

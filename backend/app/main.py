@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -31,10 +32,21 @@ from app.database.init_db import init_db
 # Create tables
 Base.metadata.create_all(bind=engine)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    from app.database.connection import SessionLocal
+    db = SessionLocal()
+    try:
+        init_db(drop_all=False, session=db)
+    finally:
+        db.close()
+    yield
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    description="Enterprise Software Quality Management Platform for Development Teams. Software Quality. Verified at Every Stage."
+    description="Enterprise Software Quality Management Platform for Development Teams. Software Quality. Verified at Every Stage.",
+    lifespan=lifespan,
 )
 
 # CORS Middleware
@@ -63,16 +75,6 @@ app.include_router(metrics.router)
 app.include_router(reports.router)
 app.include_router(audit.router)
 app.include_router(traceability.router)
-
-
-@app.on_event("startup")
-def on_startup():
-    from app.database.connection import SessionLocal
-    db = SessionLocal()
-    try:
-        init_db(drop_all=False, session=db)
-    finally:
-        db.close()
 
 
 @app.post("/api/system/reseed")
