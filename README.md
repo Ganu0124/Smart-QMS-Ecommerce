@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![SmartQMS Banner](docs/assets/smartqms_demo.webp)
+![SmartQMS Animated Walkthrough](docs/assets/smartqms_demo.webp)
 
 **Software Quality. Verified at Every Stage.**  
 *An enterprise-grade Software Quality Management System (QMS) engineered for high-concurrency e-commerce platforms. Enforce requirements traceability, eliminate payment idempotency race conditions, verify architectural baselines, and automate rule-based Smart Release Gate governance.*
@@ -17,11 +17,15 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 
 [Platform Overview](#1-product-overview) •
-[Key Features](#2-key-modules--capabilities) •
-[Architecture](#3-system-architecture) •
-[Quickstart](#4-quickstart--installation) •
-[Verification](#5-automated-test-suite-execution) •
-[License](#6-license)
+[Visual Showcase](#2-visual-showcase--screenshots) •
+[Key Modules](#3-key-modules--capabilities) •
+[Architecture](#4-system-architecture) •
+[Repository Layout](#5-repository-structure) •
+[Quality Metrics](#6-software-quality-metrics-engine) •
+[Quickstart](#7-quickstart--installation) •
+[Automated Tests](#8-automated-test-suite-execution) •
+[Role Accounts](#9-pre-configured-role-accounts) •
+[License](#10-license)
 
 </div>
 
@@ -41,7 +45,26 @@ $$\text{PLAN} \longrightarrow \text{DEFINE} \longrightarrow \text{EXECUTE} \long
 
 ---
 
-## 2. Key Modules & Capabilities
+## 2. Visual Showcase & Screenshots
+
+### High-Converting Enterprise Public Landing Page
+Clean, minimal enterprise branding built with modern typography, subtle borders, and zero clutter.
+
+![Landing Page](docs/assets/landing_page.png)
+
+### Secure Role-Based Authentication Portal
+Multi-role credentials with instant pre-fill buttons for test convenience.
+
+![Login Page](docs/assets/login_page.png)
+
+### Live Animated End-to-End Walkthrough
+Animated demonstration showcasing dashboard metrics, defect state transitions, test execution, and release gate unblocking.
+
+![Animated Demo](docs/assets/smartqms_demo.webp)
+
+---
+
+## 3. Key Modules & Capabilities
 
 ### Executive Operations Dashboard
 White-surfaced KPI cards tracking Test Pass Rate, Review Completion, Critical Defects, and normalized software development metrics with live SQLite data feeds.
@@ -78,7 +101,7 @@ Immutable functional specifications with measurable acceptance criteria, 10-poin
 
 ---
 
-## 3. System Architecture
+## 4. System Architecture
 
 ```mermaid
 graph TD
@@ -132,7 +155,60 @@ graph TD
 
 ---
 
-## 4. Quickstart & Installation
+## 5. Repository Structure
+
+```text
+Smart-QMS-Ecommerce/
+├── backend/
+│   ├── app/
+│   │   ├── core/           # Security, JWT tokens, RBAC & Dependencies
+│   │   ├── database/       # SQLAlchemy connection, Base & Seed engine
+│   │   ├── models/         # SQLAlchemy 2.0 ORM entities (14 models)
+│   │   ├── routers/        # 10 FastAPI domain REST endpoints
+│   │   ├── schemas/        # Modern Pydantic V2 ConfigDict schemas
+│   │   └── services/       # Release gate engine, metrics & audit logger
+│   ├── tests/              # 44 Comprehensive Pytest automated tests
+│   └── requirements.txt    # Production Python dependencies
+├── frontend/
+│   ├── src/
+│   │   ├── components/     # Accessible UI components (Badge, Modal, Sidebar)
+│   │   ├── context/        # AuthContext & ThemeContext
+│   │   ├── pages/          # 16 High-fidelity enterprise workspace views
+│   │   ├── types/          # Strict TypeScript interface definitions
+│   │   └── api.ts          # Centralized Axios client & API methods
+│   ├── package.json        # Frontend scripts and dependencies
+│   ├── vite.config.ts      # Vite 6.0 configuration with proxy
+│   └── tailwind.config.js  # Enterprise design system color palette
+├── docs/
+│   ├── architecture.md     # System architecture & technology stack
+│   ├── assets/             # Animated demo WebP & 7 UI screenshots
+│   ├── database_schema.md  # Relational database schema specification
+│   ├── qms_workflow.md     # 7-phase quality assurance lifecycle guide
+│   └── test_execution.md   # Test execution protocol & quality metrics
+├── scripts/
+│   ├── start-all.ps1       # One-click dual-server bootstrapper
+│   └── run-tests.ps1       # Automated Pytest suite verification script
+├── .gitignore              # Multi-tier enterprise ignore rules
+├── LICENSE                 # MIT License (c) 2026 Ganesh . M
+└── README.md               # Complete platform documentation
+```
+
+---
+
+## 6. Software Quality Metrics Engine
+
+SmartQMS computes standardized, mathematical software quality metrics in real time with division-by-zero protection:
+
+| Metric Name | Formula | Standard Threshold | System Interpretation |
+| :--- | :--- | :--- | :--- |
+| **Development Productivity (DevP)** | $$\text{DevP} = \frac{\text{Delivered Function Points}}{\text{Effort (Person-Months)}}$$ | $\ge 12.0 \text{ FP/PM}$ | Measures organizational velocity and delivery capacity per team member. |
+| **Cost of Rework (CRe)** | $$\text{CRe} = \left(\frac{\text{Rework Hours}}{\text{Total Project Hours}}\right) \times 100\%$$ | $\le 15.0\%$ | Quantifies waste and debugging overhead resulting from escaped defects. |
+| **Documentation Rework (DocRe)** | $$\text{DocRe} = \left(\frac{\text{Pages Modified After Baseline}}{\text{Total Document Pages}}\right) \times 100\%$$ | $\le 10.0\%$ | Gauges requirements volatility and design stability post-baselining. |
+| **Defect Removal Efficiency (DRE)** | $$\text{DRE} = \left(\frac{D_{\text{pre}}}{D_{\text{pre}} + D_{\text{post}}}\right) \times 100\%$$ | $\ge 95.0\%$ | Percentage of defects caught before production release. |
+
+---
+
+## 7. Quickstart & Installation
 
 ### Prerequisites
 - **Python**: 3.10, 3.11, or 3.12
@@ -183,7 +259,7 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 ---
 
-## 5. Automated Test Suite Execution
+## 8. Automated Test Suite Execution
 
 All 44 automated backend tests execute against an isolated test database (`tests/test_smartqms.db`), ensuring production and development data remain untouched:
 
@@ -206,7 +282,7 @@ cd backend
 
 ---
 
-## 6. Pre-Configured Role Accounts
+## 9. Pre-Configured Role Accounts
 
 | Role | Username | Password | Operational Permissions |
 | :--- | :--- | :--- | :--- |
@@ -218,7 +294,7 @@ cd backend
 
 ---
 
-## 7. License
+## 10. License
 
 This project is licensed under the terms of the [MIT License](LICENSE).  
 Copyright (c) 2026 Ganesh . M
