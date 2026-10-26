@@ -11,13 +11,17 @@ import argparse
 from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Session
 from app.database.connection import engine, SessionLocal, Base
-from app.core.security import get_password_hash
+from app.core.security import get_password_hash, verify_password
 from app.models.user import User
 from app.models.project import Project
-from app.models.quality_plan import QualityObjective, QualityMetric, RiskAssessment
-from app.models.requirement import Requirement, RequirementVersion
+from app.models.quality_plan import QualityObjective, QualityMetric, RiskAssessment, QualityAssurancePlan, ProjectMilestone
+from app.models.requirement import Requirement, RequirementVersion, RequirementHistory
 from app.models.review import Review, ReviewChecklistItem
 from app.models.task import DevTask
+from app.models.test_case import TestCase, TestExecution
+from app.models.defect import Defect, DefectHistory
+from app.models.release import Release, ReleaseGateResult
+from app.models.capa import CAPA
 from app.models.audit import AuditLog
 from app.routers.reviews import DEFAULT_DESIGN_CHECKLIST, DEFAULT_CODE_CHECKLIST, DEFAULT_REQUIREMENT_CHECKLIST
 
@@ -82,6 +86,17 @@ def seed_users(db: Session):
             )
             db.add(new_user)
             created += 1
+        else:
+            # Ensure demo account is active and credential hash is aligned with seed password
+            updated = False
+            if not existing.is_active:
+                existing.is_active = True
+                updated = True
+            if not verify_password(u["password"], existing.password_hash):
+                existing.password_hash = get_password_hash(u["password"])
+                updated = True
+            if updated:
+                db.commit()
     
     if created > 0:
         db.commit()
@@ -630,8 +645,9 @@ def init_db(drop_all: bool = False, session: Session = None, clean_mode: bool = 
         print("[!] Resetting database schema (dropping all tables)...")
         from sqlalchemy import text
         with engine.connect() as conn:
-            conn.execute(text("PRAGMA foreign_keys = OFF;"))
-            conn.commit()
+            if "sqlite" in str(engine.url):
+                conn.execute(text("PRAGMA foreign_keys = OFF;"))
+                conn.commit()
             for table_name in [
                 "release_gate_results", "releases", "capa",
                 "defect_history", "defects", "test_executions", "test_cases",
@@ -643,8 +659,9 @@ def init_db(drop_all: bool = False, session: Session = None, clean_mode: bool = 
             ]:
                 conn.execute(text(f"DROP TABLE IF EXISTS {table_name};"))
             conn.commit()
-            conn.execute(text("PRAGMA foreign_keys = ON;"))
-            conn.commit()
+            if "sqlite" in str(engine.url):
+                conn.execute(text("PRAGMA foreign_keys = ON;"))
+                conn.commit()
 
     print("[*] Creating database tables if not existing...")
     Base.metadata.create_all(bind=engine)

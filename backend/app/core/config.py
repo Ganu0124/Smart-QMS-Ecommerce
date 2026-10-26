@@ -24,13 +24,23 @@ class Settings:
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./smart_qms.db")
     UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "./uploads")
     
-    # CORS Origins
-    CORS_ORIGINS: list[str] = [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "*"
-    ]
+    # CORS Origins (merges environment-configured origins with defaults)
+    @property
+    def CORS_ORIGINS(self) -> list[str]:
+        default_origins = [
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "http://localhost:8000",
+            "http://127.0.0.1:8000",
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+        ]
+        env_origins = os.getenv("CORS_ORIGINS", "")
+        if env_origins:
+            for item in env_origins.split(","):
+                item_clean = item.strip()
+                if item_clean and item_clean not in default_origins:
+                    default_origins.append(item_clean)
+        return default_origins
 
 settings = Settings()

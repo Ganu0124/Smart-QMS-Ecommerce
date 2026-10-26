@@ -3,10 +3,15 @@ from sqlalchemy import create_engine, event, Engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.core.config import settings
 
-# Create engine for SQLite with check_same_thread=False
+# Resolve database URL (Render provides postgres:// which SQLAlchemy 1.4/2.0 requires as postgresql://)
+raw_db_url = settings.DATABASE_URL or "sqlite:///./smart_qms.db"
+if raw_db_url.startswith("postgres://"):
+    raw_db_url = raw_db_url.replace("postgres://", "postgresql://", 1)
+
+# Create engine for SQLite (with check_same_thread=False) or PostgreSQL
 engine = create_engine(
-    settings.DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {},
+    raw_db_url,
+    connect_args={"check_same_thread": False} if "sqlite" in raw_db_url else {},
     echo=False
 )
 

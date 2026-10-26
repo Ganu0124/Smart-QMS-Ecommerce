@@ -1,4 +1,11 @@
-function resolveApiBase(): string {
+export function getApiBase(): string {
+  if (typeof window !== 'undefined') {
+    const override = localStorage.getItem('smartqms_api_url');
+    if (override && override.trim().startsWith('http')) {
+      const stripped = override.trim().replace(/\/+$/, '');
+      return stripped.endsWith('/api') ? stripped : `${stripped}/api`;
+    }
+  }
   const envUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
   if (envUrl && envUrl.startsWith('http')) {
     const stripped = envUrl.replace(/\/+$/, '');
@@ -7,7 +14,15 @@ function resolveApiBase(): string {
   return '/api';
 }
 
-const API_BASE = resolveApiBase();
+export function setApiBase(url: string | null) {
+  if (typeof window !== 'undefined') {
+    if (url && url.trim()) {
+      localStorage.setItem('smartqms_api_url', url.trim());
+    } else {
+      localStorage.removeItem('smartqms_api_url');
+    }
+  }
+}
 
 export function getAuthToken(): string | null {
   return localStorage.getItem('smartqms_token');
@@ -34,7 +49,10 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers.set('Content-Type', 'application/json');
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+  const base = getApiBase();
+  const url = `${base}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+
+  const response = await fetch(url, {
     ...options,
     headers,
   });
@@ -44,15 +62,34 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     window.dispatchEvent(new CustomEvent('auth:unauthorized'));
   }
 
+  const contentType = response.headers.get('content-type') || '';
+  const isJson = contentType.includes('application/json');
+
   if (!response.ok) {
-    let errorDetail = 'Request failed';
-    try {
-      const errJson = await response.json();
-      errorDetail = errJson.detail || errorDetail;
-    } catch {
-      errorDetail = response.statusText || errorDetail;
+    let errorDetail = `Request failed (${response.status})`;
+    if (isJson) {
+      try {
+        const errJson = await response.json();
+        errorDetail = errJson.detail || errorDetail;
+      } catch {
+        errorDetail = response.statusText || errorDetail;
+      }
+    } else {
+      const text = await response.text();
+      if (text.includes('<!doctype') || text.includes('<html')) {
+        errorDetail = `Backend endpoint returned HTML instead of JSON. Ensure your frontend points to the backend API URL (currently: ${base}).`;
+      } else {
+        errorDetail = response.statusText || errorDetail;
+      }
     }
     throw new Error(errorDetail);
+  }
+
+  if (!isJson) {
+    const text = await response.text();
+    if (text.includes('<!doctype') || text.includes('<html')) {
+      throw new Error(`Connected to static host instead of backend API (${base}). Please configure the backend API URL.`);
+    }
   }
 
   return response.json();
@@ -371,6 +408,7 @@ export const api = {
   // Reports download URL generators
   getReportDownloadUrl: (format: 'pdf' | 'csv', type: string, projectId?: number) => {
     const token = getAuthToken();
-    return `${API_BASE}/reports/export/${format}/${type}?project_id=${projectId || 1}&token=${token || ''}`;
+    const base = getApiBase();
+    return `${base}/reports/export/${format}/${type}?project_id=${projectId || 1}&token=${token || ''}`;
   },
 };

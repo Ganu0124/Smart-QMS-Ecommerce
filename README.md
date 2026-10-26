@@ -257,6 +257,33 @@ npm run dev -- --host 127.0.0.1 --port 5173
 ```
 - **Web Application**: `http://127.0.0.1:5173/`
 
+### Option C: Render Cloud Deployment
+
+SmartQMS is engineered for zero-friction cloud deployment on Render via `render.yaml` or manual service creation:
+
+#### Method 1: Render Blueprint (Recommended — 1-Click)
+1. In the [Render Dashboard](https://dashboard.render.com/), click **New +** $\to$ **Blueprint**.
+2. Connect your repository `https://github.com/Ganu0124/Smart-QMS-Ecommerce`.
+3. Render automatically provisions:
+   - **Backend Web Service (`smart-qms-api`)**: Python environment running FastAPI on port `$PORT` with health checks at `/api/health`.
+   - **Frontend Static Site (`smart-qms-ui`)**: Vite React client with SPA rewrite rules (`/*` $\to$ `/index.html`).
+
+#### Method 2: Manual Services on Render
+- **Backend (Web Service)**:
+  - **Root Directory**: `backend` (or leave empty)
+  - **Build Command**: `pip install -r backend/requirements.txt`
+  - **Start Command**: `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+  - **Environment Variables**: `PORT=10000`, `WORKSPACE_MODE=standard`, `SECRET_KEY=<your-secret>`
+- **Frontend (Static Site)**:
+  - **Root Directory**: `frontend`
+  - **Build Command**: `npm install && npm run build`
+  - **Publish Directory**: `dist`
+  - **Environment Variables**: `VITE_API_BASE_URL=https://<your-backend-service>.onrender.com`
+  - **Redirect/Rewrite Rule**: `/*` $\to$ `/index.html` (Rewrite)
+
+> [!NOTE]
+> **Render Free Tier Spin-Down**: On Render's free tier, inactive services sleep after 15 minutes. The initial login request may take 30–60 seconds while the container wakes up. The login screen includes a Backend Connection widget allowing instant URL verification and configuration.
+
 ---
 
 ## 8. Automated Test Suite Execution
