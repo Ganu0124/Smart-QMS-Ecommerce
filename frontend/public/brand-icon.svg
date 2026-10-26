@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="qmsBrandGrad" x1="4" y1="4" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stopColor="#2563EB" />
+      <stop offset="100%" stopColor="#0D9488" />
+    </linearGradient>
+    <linearGradient id="qmsAccentGrad" x1="16" y1="12" x2="48" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stopColor="#60A5FA" />
+      <stop offset="100%" stopColor="#2DD4BF" />
+    </linearGradient>
+  </defs>
+  <polygon points="32,4 58,18 58,46 32,60 6,46 6,18" fill="url(#qmsBrandGrad)" stroke="#1E293B" stroke-width="1.5" stroke-linejoin="round"/>
+  <polygon points="32,10 52,21 52,43 32,54 12,43 12,21" fill="#0B1220" stroke="url(#qmsAccentGrad)" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M32 18 C24.268 18 18 24.268 18 32 C18 39.732 24.268 46 32 46 C35.48 46 38.65 44.73 41.1 42.6 L46.5 48 C47.33 48.83 48.67 48.83 49.5 48 C50.33 47.17 50.33 45.83 49.5 45 L44.3 39.8 C45.38 37.5 46 34.85 46 32 C46 24.268 39.732 18 32 18 Z" fill="none" stroke="url(#qmsAccentGrad)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M26 31.5 L30.5 36 L39 26.5" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
